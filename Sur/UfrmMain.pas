@@ -373,7 +373,7 @@ begin
   adotemp22.Connection:=ADOConn_BS;
   adotemp22.Close;
   adotemp22.SQL.Clear;
-  adotemp22.SQL.Text:='select * from da_outspecimen where status in (''4'',''5'') ';
+  adotemp22.SQL.Text:='select * from da_outspecimen where status in (''4'',''5'') and createdate>GETDATE()-90';
   adotemp22.Open;
   while not adotemp22.Eof do
   begin
@@ -383,7 +383,11 @@ begin
     adotemp33.Connection:=ADOConn_BS;
     adotemp33.Close;
     adotemp33.SQL.Clear;
-    adotemp33.SQL.Text:='select * from da_result where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''1'' ';
+    adotemp33.SQL.Text:='select datestcode as item_code,testresult as item_result,reportremark as remark from da_result where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''1'' '+
+                        ' union all '+
+                        'select anticode as item_code,isnull(resultvalue,'''')+''   ''+isnull(testresult,'''') as item_result,'''' as remark from da_micantiresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' '+
+                        ' union all '+
+                        'select organismcode as item_code,quantity as item_result,quantitycomment as remark from da_micorgresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''2'' ';
     adotemp33.Open;
     
     if adotemp33.RecordCount<=0 then begin adotemp33.Free;adotemp22.Next;continue;end;
@@ -395,11 +399,11 @@ begin
     i:=0;
     while not adotemp33.Eof do
     begin    
-      memo1.Lines.Add('获取病人结果,datestcode:'+adotemp33.fieldbyname('datestcode').AsString+',datestname:'+adotemp33.fieldbyname('datestname').AsString+',testresult:'+adotemp33.fieldbyname('testresult').AsString);
+      memo1.Lines.Add('获取病人结果,item_code:'+adotemp33.fieldbyname('item_code').AsString+',item_result:'+adotemp33.fieldbyname('item_result').AsString);
 
-      sRemark:=sRemark+adotemp33.fieldbyname('reportremark').AsString;
+      sRemark:=sRemark+adotemp33.fieldbyname('remark').AsString;
 
-      ReceiveItemInfo[i]:=VarArrayof([adotemp33.fieldbyname('datestcode').AsString,adotemp33.fieldbyname('testresult').AsString,'','']);
+      ReceiveItemInfo[i]:=VarArrayof([adotemp33.fieldbyname('item_code').AsString,adotemp33.fieldbyname('item_result').AsString,'','']);
 
       inc(i);
       adotemp33.Next;
