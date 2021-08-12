@@ -362,7 +362,7 @@ VAR
   adotemp22,adotemp33,adotemp44:tadoquery;
   ReceiveItemInfo:OleVariant;
   FInts:OleVariant;
-  sSex,sRemark:String;
+  sSex,sRemark,sAgeUnit:String;
   i:integer;
 begin
   if not ifConnSucc then exit;
@@ -414,6 +414,11 @@ begin
       else if adotemp22.fieldbyname('sex').AsString='F' THEN sSex:='女'
         else sSex:='未知';
 
+    if adotemp22.fieldbyname('ageunit').AsString='1' THEN sAgeUnit:='月'
+      else if adotemp22.fieldbyname('ageunit').AsString='2' THEN sAgeUnit:='天'
+        else if adotemp22.fieldbyname('ageunit').AsString='3' THEN sAgeUnit:='小时'
+          else sAgeUnit:='岁';
+
     if bRegister then
     begin
       FInts :=CreateOleObject('Data2LisSvr.Data2Lis');
@@ -421,7 +426,7 @@ begin
         FormatDateTime('YYYY-MM-DD hh:nn:ss',adotemp22.fieldbyname('enterbydate').AsDateTime),
         (GroupName),(SpecType),adotemp22.fieldbyname('samstate').AsString,(EquipChar),
         (CombinID),
-        adotemp22.fieldbyname('patientname').AsString+'{!@#}'+sSex+'{!@#}{!@#}'+adotemp22.fieldbyname('age').AsString+adotemp22.fieldbyname('ageunit').AsString+'{!@#}'+adotemp22.fieldbyname('patientnumber').AsString+'{!@#}'+adotemp22.fieldbyname('location').AsString+'{!@#}'+adotemp22.fieldbyname('doctor').AsString+'{!@#}'+adotemp22.fieldbyname('bednumber').AsString+'{!@#}'+adotemp22.fieldbyname('diagnostication').AsString+'{!@#}'+copy(sRemark,1,50)+'{!@#}{!@#}{!@#}'+adotemp22.fieldbyname('hospsampleid').AsString+'{!@#}',
+        adotemp22.fieldbyname('patientname').AsString+'{!@#}'+sSex+'{!@#}{!@#}'+adotemp22.fieldbyname('age').AsString+sAgeUnit+'{!@#}'+adotemp22.fieldbyname('patientnumber').AsString+'{!@#}'+adotemp22.fieldbyname('location').AsString+'{!@#}'+adotemp22.fieldbyname('doctor').AsString+'{!@#}'+adotemp22.fieldbyname('bednumber').AsString+'{!@#}'+adotemp22.fieldbyname('diagnostication').AsString+'{!@#}'+copy(sRemark,1,50)+'{!@#}{!@#}{!@#}'+adotemp22.fieldbyname('hospsampleid').AsString+'{!@#}',
         (LisFormCaption),(ConnectString),
         (QuaContSpecNoG),(QuaContSpecNo),(QuaContSpecNoD),'',
         ifRecLog,true,'常规',
