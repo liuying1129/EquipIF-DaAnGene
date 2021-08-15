@@ -1,7 +1,8 @@
-联机标识：da_result.datestcode
+联机标识：
+da_result.datestcode
+da_pathologyresult.itemname
+病理检测类型
 
 忽略达安结果表中的单位、高低提示、参考范围，在誉凯LIS中维护项目的单位、高低提示、参考范围
 
 每隔10分钟获取1次检验结果
-
-注：确定DA_OUTSPECIMEN.enterbydate是否一定有值，是否带有时间值。如果没有，则需修改代码

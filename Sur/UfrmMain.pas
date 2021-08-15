@@ -359,11 +359,12 @@ end;
 
 procedure TfrmMain.Timer1Timer(Sender: TObject);
 VAR
-  adotemp22,adotemp33,adotemp44:tadoquery;
+  adotemp22,adotemp33,adotemp44,adotemp55:tadoquery;
   ReceiveItemInfo:OleVariant;
   FInts:OleVariant;
   sSex,sRemark,sAgeUnit:String;
-  i:integer;
+  i,k:integer;
+  Pathology_Type:String;//病理检测类型
 begin
   if not ifConnSucc then exit;
 
@@ -383,18 +384,33 @@ begin
     adotemp33.Connection:=ADOConn_BS;
     adotemp33.Close;
     adotemp33.SQL.Clear;
-    adotemp33.SQL.Text:='select datestcode as item_code,testresult as item_result,reportremark as remark from da_result where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''1'' '+
+    adotemp33.SQL.Text:='select datestcode as item_code,testresult as item_result,reportremark as remark from da_result where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''1'' and isnull(datestcode,'''')<>'''' '+//普通检验项目结果
                         ' union all '+
                         'select anticode as item_code,isnull(resultvalue,'''')+''   ''+isnull(testresult,'''') as item_result,'''' as remark from da_micantiresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' '+
                         ' union all '+
-                        'select organismcode as item_code,quantity as item_result,quantitycomment as remark from da_micorgresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''2'' ';
+                        'select organismcode as item_code,quantity as item_result,quantitycomment as remark from da_micorgresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''2'' '+
+                        ' union all '+
+                        'select itemname as item_code,result as item_result,'''' as remark from da_pathologyresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and isnull(result,'''')<>'''' ';//病理检测结果
     adotemp33.Open;
     
     if adotemp33.RecordCount<=0 then begin adotemp33.Free;adotemp22.Next;continue;end;
     
+    adotemp55:=tadoquery.Create(nil);
+    adotemp55.Connection:=ADOConn_BS;
+    adotemp55.Close;
+    adotemp55.SQL.Clear;
+    adotemp55.SQL.Text:='select top 1 * from da_outspecimen do,da_pathologyresult dp where do.requestcode=dp.requestcode and do.requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and isnull(dp.result,'''')<>'''' ';
+    adotemp55.Open;
+    if adotemp55.RecordCount>0 then//存在病理检测结果
+    begin
+      k:=1;
+      Pathology_Type:=adotemp55.fieldbyname('datestnames').AsString;//病理检测类型
+    end;
+    adotemp55.Free;
+
     sRemark:=adotemp22.fieldbyname('remark').AsString;    
 
-    ReceiveItemInfo:=VarArrayCreate([0,adotemp33.RecordCount-1],varVariant);
+    ReceiveItemInfo:=VarArrayCreate([0,adotemp33.RecordCount-1+k],varVariant);
 
     i:=0;
     while not adotemp33.Eof do
@@ -409,6 +425,8 @@ begin
       adotemp33.Next;
     end;
     adotemp33.Free;
+
+    if k>0 then ReceiveItemInfo[i]:=VarArrayof(['病理检测类型',Pathology_Type,'','']);
 
     if adotemp22.fieldbyname('sex').AsString='M' THEN sSex:='男'
       else if adotemp22.fieldbyname('sex').AsString='F' THEN sSex:='女'
