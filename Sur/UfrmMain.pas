@@ -394,7 +394,9 @@ begin
     adotemp33.Open;
     
     if adotemp33.RecordCount<=0 then begin adotemp33.Free;adotemp22.Next;continue;end;
-    
+
+    //病理检测类型begin
+    k:=0;Pathology_Type:='';
     adotemp55:=tadoquery.Create(nil);
     adotemp55.Connection:=ADOConn_BS;
     adotemp55.Close;
@@ -407,6 +409,7 @@ begin
       Pathology_Type:=adotemp55.fieldbyname('datestnames').AsString;//病理检测类型
     end;
     adotemp55.Free;
+    //病理检测类型end
 
     sRemark:=adotemp22.fieldbyname('remark').AsString;    
 
