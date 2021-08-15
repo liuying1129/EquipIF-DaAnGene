@@ -80,9 +80,6 @@ var
   SpecType:string ;//
   CombinID:string;//
   LisFormCaption:string;//
-  QuaContSpecNoG:string;
-  QuaContSpecNo:string;
-  QuaContSpecNoD:string;
   EquipChar:string;
   ifRecLog:boolean;//是否记录调试日志
   EquipUnid:integer;//设备唯一编号
@@ -234,10 +231,6 @@ begin
   LisFormCaption:=ini.ReadString(IniSection,'检验系统窗体标题','');
   EquipUnid:=ini.ReadInteger(IniSection,'设备唯一编号',-1);
 
-  QuaContSpecNoG:=ini.ReadString(IniSection,'高值质控联机号','9999');
-  QuaContSpecNo:=ini.ReadString(IniSection,'常值质控联机号','9998');
-  QuaContSpecNoD:=ini.ReadString(IniSection,'低值质控联机号','9997');
-
   DaanConnStr:=ini.ReadString(IniSection,'连接达安数据库','');
 
   ini.Free;
@@ -318,10 +311,7 @@ begin
       '组合项目代码'+#2+'Edit'+#2+#2+'1'+#2+#2+#3+
       '开机自动运行'+#2+'CheckListBox'+#2+#2+'1'+#2+#2+#3+
       '调试日志'+#2+'CheckListBox'+#2+#2+'0'+#2+'注:强烈建议在正常运行时关闭'+#2+#3+
-      '设备唯一编号'+#2+'Edit'+#2+#2+'1'+#2+#2+#3+
-      '高值质控联机号'+#2+'Edit'+#2+#2+'2'+#2+#2+#3+
-      '常值质控联机号'+#2+'Edit'+#2+#2+'2'+#2+#2+#3+
-      '低值质控联机号'+#2+'Edit'+#2+#2+'2'+#2+#2;
+      '设备唯一编号'+#2+'Edit'+#2+#2+'1'+#2+#2+#3;
 
   if ShowOptionForm('',Pchar(IniSection),Pchar(ss),Pchar(ChangeFileExt(Application.ExeName,'.ini'))) then
 	  UpdateConfig;
@@ -449,7 +439,7 @@ begin
         (CombinID),
         adotemp22.fieldbyname('patientname').AsString+'{!@#}'+sSex+'{!@#}{!@#}'+adotemp22.fieldbyname('age').AsString+sAgeUnit+'{!@#}'+adotemp22.fieldbyname('patientnumber').AsString+'{!@#}'+adotemp22.fieldbyname('location').AsString+'{!@#}'+adotemp22.fieldbyname('doctor').AsString+'{!@#}'+adotemp22.fieldbyname('bednumber').AsString+'{!@#}'+adotemp22.fieldbyname('diagnostication').AsString+'{!@#}'+copy(sRemark,1,50)+'{!@#}{!@#}{!@#}'+adotemp22.fieldbyname('hospsampleid').AsString+'{!@#}',
         (LisFormCaption),(ConnectString),
-        (QuaContSpecNoG),(QuaContSpecNo),(QuaContSpecNoD),'',
+        (''),(''),(''),'',
         ifRecLog,true,'常规',
         '',
         EquipUnid,
