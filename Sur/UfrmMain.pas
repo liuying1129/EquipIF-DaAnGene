@@ -375,10 +375,11 @@ begin
     adotemp33.Close;
     adotemp33.SQL.Clear;
     adotemp33.SQL.Text:='select datestcode as item_code,testresult as item_result,reportremark as remark from da_result where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''1'' and isnull(datestcode,'''')<>'''' '+//普通检验项目结果
-                        ' union all '+
-                        'select anticode as item_code,isnull(resultvalue,'''')+''   ''+isnull(testresult,'''') as item_result,'''' as remark from da_micantiresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' '+
-                        ' union all '+
-                        'select organismcode as item_code,quantity as item_result,quantitycomment as remark from da_micorgresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''2'' '+
+                        //20210816达安工程师反馈,微生物结果在da_result中,da_micantiresult与da_micorgresult不需要
+                        //' union all '+
+                        //'select anticode as item_code,isnull(resultvalue,'''')+''   ''+isnull(testresult,'''') as item_result,'''' as remark from da_micantiresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' '+
+                        //' union all '+
+                        //'select organismcode as item_code,quantity as item_result,quantitycomment as remark from da_micorgresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''2'' '+
                         ' union all '+
                         'select itemname as item_code,result as item_result,'''' as remark from da_pathologyresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and isnull(result,'''')<>'''' ';//病理检测结果
     adotemp33.Open;
