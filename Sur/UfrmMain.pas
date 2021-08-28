@@ -384,7 +384,7 @@ begin
                         ' union all '+
                         'select itemname as item_code,result as item_result,'''' as remark from da_pathologyresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and isnull(result,'''')<>'''' ';//病理检测结果
     adotemp33.Open;
-    
+
     if adotemp33.RecordCount<=0 then begin adotemp33.Free;adotemp22.Next;continue;end;
 
     //病理检测类型begin
@@ -406,7 +406,7 @@ begin
     //获取万达报告单号begin
     histogram:='';
     adotemp66:=tadoquery.Create(nil);
-    adotemp66.Connection:=ADOConnection1;
+    adotemp66.ConnectionString:=ConnectString;
     adotemp66.Close;
     adotemp66.SQL.Clear;
     adotemp66.SQL.Text:='select * from chk_valu_his where RIGHT(''00000000''+cast(pkunid as varchar(40)),8)='''+adotemp22.fieldbyname('hospsampleid').AsString+''' ';
