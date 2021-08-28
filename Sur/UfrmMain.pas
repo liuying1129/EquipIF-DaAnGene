@@ -349,13 +349,13 @@ end;
 
 procedure TfrmMain.Timer1Timer(Sender: TObject);
 VAR
-  adotemp22,adotemp33,adotemp44,adotemp55:tadoquery;
+  adotemp22,adotemp33,adotemp44,adotemp55,adotemp66:tadoquery;
   ReceiveItemInfo:OleVariant;
   FInts:OleVariant;
   sSex,sRemark,sAgeUnit:String;
   i,k:integer;
   Pathology_Type:String;//病理检测类型
-  Pathology_Type_Hospsamplenumber:String;//病理检测类型的hospsamplenumber
+  histogram:string;//万达报告单号
 begin
   if not ifConnSucc then exit;
 
@@ -375,14 +375,14 @@ begin
     adotemp33.Connection:=ADOConn_BS;
     adotemp33.Close;
     adotemp33.SQL.Clear;
-    adotemp33.SQL.Text:='select datestcode as item_code,testresult as item_result,reportremark as remark,hospsamplenumber from da_result where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''1'' and isnull(datestcode,'''')<>'''' '+//普通检验项目结果
+    adotemp33.SQL.Text:='select datestcode as item_code,testresult as item_result,reportremark as remark from da_result where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''1'' and isnull(datestcode,'''')<>'''' '+//普通检验项目结果
                         //20210816达安工程师反馈,微生物结果在da_result中,da_micantiresult与da_micorgresult不需要
                         //' union all '+
                         //'select anticode as item_code,isnull(resultvalue,'''')+''   ''+isnull(testresult,'''') as item_result,'''' as remark from da_micantiresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' '+
                         //' union all '+
                         //'select organismcode as item_code,quantity as item_result,quantitycomment as remark from da_micorgresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and status=''2'' '+
                         ' union all '+
-                        'select itemname as item_code,result as item_result,'''' as remark,hospsamplenumber from da_pathologyresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and isnull(result,'''')<>'''' ';//病理检测结果
+                        'select itemname as item_code,result as item_result,'''' as remark from da_pathologyresult where requestcode='''+adotemp22.fieldbyname('requestcode').AsString+''' and isnull(result,'''')<>'''' ';//病理检测结果
     adotemp33.Open;
     
     if adotemp33.RecordCount<=0 then begin adotemp33.Free;adotemp22.Next;continue;end;
@@ -399,10 +399,21 @@ begin
     begin
       k:=1;
       Pathology_Type:=adotemp55.fieldbyname('datestnames').AsString;//病理检测类型
-      Pathology_Type_Hospsamplenumber:=adotemp55.fieldbyname('hospsamplenumber').AsString;
     end;
     adotemp55.Free;
     //病理检测类型end
+
+    //获取万达报告单号begin
+    histogram:='';
+    adotemp66:=tadoquery.Create(nil);
+    adotemp66.Connection:=ADOConnection1;
+    adotemp66.Close;
+    adotemp66.SQL.Clear;
+    adotemp66.SQL.Text:='select * from chk_valu_his where RIGHT(''00000000''+cast(pkunid as varchar(40)),8)='''+adotemp22.fieldbyname('hospsampleid').AsString+''' ';
+    adotemp66.Open;
+    histogram:=adotemp66.fieldbyname('histogram').AsString;
+    adotemp66.Free;
+    //获取万达报告单号end
 
     sRemark:=adotemp22.fieldbyname('remark').AsString;    
 
@@ -415,14 +426,14 @@ begin
 
       sRemark:=sRemark+adotemp33.fieldbyname('remark').AsString;
 
-      ReceiveItemInfo[i]:=VarArrayof([adotemp33.fieldbyname('item_code').AsString,adotemp33.fieldbyname('item_result').AsString,adotemp33.fieldbyname('hospsamplenumber').AsString,'']);
+      ReceiveItemInfo[i]:=VarArrayof([adotemp33.fieldbyname('item_code').AsString,adotemp33.fieldbyname('item_result').AsString,histogram,'']);
 
       inc(i);
       adotemp33.Next;
     end;
     adotemp33.Free;
 
-    if k>0 then ReceiveItemInfo[i]:=VarArrayof(['病理检测类型',Pathology_Type,Pathology_Type_Hospsamplenumber,'']);
+    if k>0 then ReceiveItemInfo[i]:=VarArrayof(['病理检测类型',Pathology_Type,histogram,'']);
 
     if adotemp22.fieldbyname('sex').AsString='M' THEN sSex:='男'
       else if adotemp22.fieldbyname('sex').AsString='F' THEN sSex:='女'
